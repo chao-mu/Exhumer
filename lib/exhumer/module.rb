@@ -1,6 +1,13 @@
 require 'exhumer'
 
 class Exhumer::Module
+	def initialize
+		setup
+	end
+
+	def setup
+	end
+
 	def self.load_module(mod_path)
 		wrapper = ::Module.new
 		wrapper.module_eval(File.read(mod_path))

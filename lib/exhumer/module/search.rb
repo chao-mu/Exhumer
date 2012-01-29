@@ -14,14 +14,6 @@ class Exhumer::Module::Search < Exhumer::Module
     raise 'search_uri must be overridden'
   end
 
-  def initialize
-    super
-    setup
-  end
-
-  def setup
-  end
-
   def add_retrieval_method(*schemes, &f)
     schemes.each do |scheme|
       if retrieval_methods.has_key? scheme

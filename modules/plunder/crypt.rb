@@ -5,9 +5,7 @@ class Awesomesauce < Exhumer::Module::Plunder
   MCF_CHAR_STRICT = '[\d[a-z][A-Z]./]'
   MCF_CHAR = '[\d[a-z][A-Z]./,=_-]'
 
-  def initialize  
-    super
-
+  def setup 
     # $2a$12$GhvMmNVjRW29ulnudl.LbuAnUtN/LRfe1JsBm1Xu6LE3059z5Tr8m
     add_pattern :bcrypt_mcf, /\$2a?\$\d{2}\$#{MCF_CHAR}{53}/
 
