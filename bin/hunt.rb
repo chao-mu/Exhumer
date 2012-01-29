@@ -32,7 +32,7 @@ plunder_mod.dorks.each do |tag, queries|
         begin
           body = agent.get(link).body
           loot |= plunder_mod.scan(body).uniq
-        rescue Net::HTTPClientError, Mechanize::Error, Timeout::Error, OpenSSL::SSL::SSLError => e
+        rescue Net::HTTPClientError, Mechanize::Error, Timeout::Error, OpenSSL::SSL::SSLError, Net::HTTP::Persistent::Error => e
           warn "Error (#{link.to_s}): " << e.to_s
         end
       end
