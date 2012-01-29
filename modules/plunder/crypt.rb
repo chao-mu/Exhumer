@@ -25,7 +25,7 @@ class Awesomesauce < Exhumer::Module::Plunder
     add_pattern :sha512_mcf, /\$5\$(?:rounds=\d+\$)?#{MCF_CHAR}{0,16}\$#{MCF_CHAR}{43}/
   end
 
-  def google_dorks
+  def dorks
     {
       :bcrypt     => ['"root:$2a"'],
       :md5_unix   => ['"root:$1" daemon'],

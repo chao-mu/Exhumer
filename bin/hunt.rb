@@ -9,16 +9,17 @@ agent = Mechanize.new
 agent.user_agent_alias = 'Mac Safari'
 
 if ARGV.length != 2
-  warn "usage: #{$0} path/to/search/module.rb path/to/plunder/module.rb"
+  warn "usage:   #{$0} path/to/plunder/module.rb path/to/search/module.rb"
+  warn "example: #{$0} modules/plunder/crypt.rb  modules/search/google.rb"
   exit 1
 end
 
-search_path, plunder_path = ARGV
+plunder_path, search_path  = ARGV
 
-search_mod  = Exhumer::Module.load_module(search_path)
 plunder_mod = Exhumer::Module.load_module(plunder_path)
+search_mod  = Exhumer::Module.load_module(search_path)
 
-plunder_mod.google_dorks.each do |tag, queries|
+plunder_mod.dorks.each do |tag, queries|
   queries.each do |query|
     search_mod.each(query, 2) do |search_uri, link, description|
       loot = []
@@ -28,7 +29,12 @@ plunder_mod.google_dorks.each do |tag, queries|
 
       # Attempt to skip false positives
       unless description_loot.empty?
-        loot |= plunder_mod.scan(agent.get(link).body).uniq
+        begin
+          body = agent.get(link).body
+          loot |= plunder_mod.scan(body).uniq
+        rescue Exception => e
+          warn "Error (#{link.to_s}): " << e.to_s
+        end
       end
 
       loot.each do |lut|
