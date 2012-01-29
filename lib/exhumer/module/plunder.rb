@@ -4,13 +4,11 @@ class Exhumer::Module::Plunder < Exhumer::Module
 
   attr_reader :patterns
 
-  def initialize
-    super
-
-    @patterns = []
-  end
-
   def add_pattern(tag, regex) 
+    if @patterns.nil?
+      @patterns = []
+    end
+
     patterns.push({
       :tag   => tag,
       :regex => regex
