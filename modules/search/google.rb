@@ -1,42 +1,26 @@
 require 'exhumer/module/search'
-require 'exhumer/module/search/http'
+require 'exhumer/module/search/mechanize'
 
 require 'uri'
+require 'nokogiri'
 require 'cgi'
 
 class Awesomesauce < Exhumer::Module::Search
-  include Exhumer::Module::Search::HTTP
+  include Exhumer::Module::Search::Mechanize
 
   def setup
     pref_uri  = URI('http://www.google.com/preferences?hl=en')
-    pref_body = normalize_body(follow_uri(pref_uri))
-    sig       = pref_body.css('[name=sig]').first['value']
-    prefs = {
-      :sig       => sig,
-      :uulo      => 1,
-      :luul      => '',
-      :safeui    => 'off',
-      :suggon    => 2,
-      :num       => 100,
-      :newwindow => 0,
-      :q         => '',
-      :submit2   => 'Save+Preferences'
-    }
+    pref_form = retrieve(pref_uri).form_with(:id => 'ssform')
 
-    query = prefs.map do |k, v|
-      k.to_s << '=' << v.to_s
-    end.join('&')
+    pref_form.set_fields(:num => 100, :suggon => 2)
 
-    set_pref_uri = URI('http://www.google.com/setprefs')
-    set_pref_uri.query = query
-
-    follow_uri(set_pref_uri)
+    pref_form.submit
   end
 
-  def results_at(uri, body)
+  def results_at(page)
     results = {}
 
-    body.css('li.g').each do |li|
+    Nokogiri::HTML(page.body).css('li.g').each do |li|
       description = li.text
       link = li.css('a').first['href']
 
@@ -46,17 +30,17 @@ class Awesomesauce < Exhumer::Module::Search
     results
   end
 
-  def next_search_uri(uri, body)
-    next_link = body.css('#pnnext').first
+  def next_page(last_uri, last_page)
+    next_link = last_page.link_with(:id => 'pnnext')
 
     if next_link.nil?
       return nil
     end
 
-    uri.merge(next_link['href'])
+    [next_link.href, next_link.click]
   end
 
-  def search_uri(query)
+  def to_uri(query)
     query = CGI::escape(query)
 
     #URI("https://encrypted.google.com/search?num=100&q=#{query}")
