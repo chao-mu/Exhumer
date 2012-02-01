@@ -12,7 +12,7 @@ class Awesomesauce < Exhumer::Module::Search
     pref_uri  = URI('http://www.google.com/preferences?hl=en')
     pref_form = retrieve(pref_uri).form_with(:id => 'ssform')
 
-    pref_form.set_fields(:num => 100, :suggon => 2)
+    pref_form.set_fields(:num => 100, :suggon => 2, :safeui => 'off')
 
     pref_form.submit
   end
