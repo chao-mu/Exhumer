@@ -30,9 +30,11 @@ class Exhumer::Module::Search < Exhumer::Module
         f.call(search_uri, uri, description)
       end
 
-      search_uri, search_body = next_page(search_uri, search_body)
-      if search_body.nil?
-         search_body = retrieve(search_uri)
+      next_step = next_page(search_uri, search_body)
+      if next_step.kind_of?(URI)
+        search_body = retrieve(next_step)
+      else
+        search_body = next_step
       end
     end
   end

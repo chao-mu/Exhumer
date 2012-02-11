@@ -37,7 +37,7 @@ class Awesomesauce < Exhumer::Module::Search
       return nil
     end
 
-    [next_link.href, next_link.click]
+    next_link.click
   end
 
   def to_uri(query)
