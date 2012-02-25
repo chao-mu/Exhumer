@@ -14,7 +14,13 @@ class Awesomesauce < Exhumer::Module::Search
 
     pref_form.set_fields(:num => 100, :suggon => 2, :safeui => 'off')
 
+    delay
+
     pref_form.submit
+  end
+
+  def delay
+    sleep(rand * 10) 
   end
 
   def results_at(page)

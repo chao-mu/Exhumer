@@ -2,6 +2,15 @@ require 'exhumer/module'
 
 class Exhumer::Module::Search < Exhumer::Module
 
+  def throttle(&f)
+    delay
+
+    f.call
+  end
+
+  def delay
+  end
+
   def results_at(body)
     raise 'results_at must be overridden' 
   end
@@ -14,18 +23,23 @@ class Exhumer::Module::Search < Exhumer::Module
     raise 'retrieve must be overridden'
   end
 
+  def throttled_retrieve(uri)
+    throttle do
+      retrieve(uri)
+    end
+  end
+
   def advance_search(last_uri, last_page)
     raise 'advance_search must be overridden'
   end
 
   def each(seed, max_queries=1.0/0, &f)
     search_uri  = to_uri(seed)
-    search_body = retrieve(search_uri)
+    search_body = throttled_retrieve(search_uri)
     search_todo = [[search_uri, search_body]]
     searches    = 1
 
     until search_todo.empty? or searches >= max_queries
-      searches = searches + 1
       search_uri, search_body = search_todo.pop
 
       results_at(search_body).each_pair do |uri, description|
@@ -41,6 +55,7 @@ class Exhumer::Module::Search < Exhumer::Module
           search_todo.push [nil, advancement]
         end
       end
+      searches = searches + 1
     end
   end
 end
