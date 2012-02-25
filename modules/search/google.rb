@@ -30,14 +30,14 @@ class Awesomesauce < Exhumer::Module::Search
     results
   end
 
-  def next_page(last_uri, last_page)
+  def advance_search(last_uri, last_page)
     next_link = last_page.link_with(:id => 'pnnext')
 
     if next_link.nil?
       return nil
     end
 
-    next_link.click
+    [next_link.uri, next_link.click]
   end
 
   def to_uri(query)
