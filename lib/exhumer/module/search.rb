@@ -37,7 +37,7 @@ class Exhumer::Module::Search < Exhumer::Module
           search_todo.push [advancement, nil]
         elsif advancment.kind_of?(Array)
           search_todo.push advancement
-        elsif !search_todo.nil?
+        elsif !advancement.nil?
           search_todo.push [nil, advancement]
         end
       end
