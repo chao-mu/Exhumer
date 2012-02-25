@@ -30,7 +30,7 @@ plunder_mod.dorks.each do |tag, queries|
       # Attempt to skip false positives
       unless description_loot.empty?
         begin
-          body = agent.get(link).body
+          body  = agent.get(link).body
           loot |= plunder_mod.scan(body).uniq
         rescue Net::HTTPClientError, Mechanize::Error, Timeout::Error, OpenSSL::SSL::SSLError, Net::HTTP::Persistent::Error, SocketError, Errno::ETIMEDOUT => e
           warn "Error (#{link.to_s}): " << e.to_s
