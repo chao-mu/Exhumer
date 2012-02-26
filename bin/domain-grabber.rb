@@ -15,11 +15,6 @@ end
 app_id, ips = ARGV
 ips = [ips].flatten
 
-def google_domain_lookup(ip)
-  bing_path = File.join(MODULE_DIR, 'search', 'google.rb')
-  bing_mod  = Exhumer::Module.load_module(bing_path)
-end
-
 def bing_reverse_lookup(app_id, ip)
   bing_path = File.join(MODULE_DIR, 'search', 'bing.rb')
   bing_mod  = Exhumer::Module.load_module(bing_path)
@@ -44,24 +39,32 @@ def lookup_records(domains, record_type)
   end.flatten
 end
 
-domains = ips.map do |ip| bing_reverse_lookup(app_id, ip).each do |hostname|
-    [hostname, PublicSuffix.parse(hostname).domain]
-  end
-end.flatten.flatten.uniq
+domains = []
 
+# Use bing to build a list of domains
+ips.each do |ip|
+  bing_reverse_lookup(app_id, ip).each do |hostname|
+    domains |= [hostname, PublicSuffix.parse(hostname).domain]
+  end
+end
+
+# Various DNS records
 records = []
 
+# Lookup PTR records
 lookup_records(ips, Net::DNS::PTR).each do |record|
   domains |= [record.ptr]
   records |= [record.to_s]
 end
 
-records |= %w(A AAAA CNAME MX NS SOA SRV TXT).map do |type|
-  lookup_records(domains, type).map do |record|
-    record.to_s
+# Lookup common record types
+%w(A AAAA CNAME MX NS SOA SRV TXT).each do |type|
+  lookup_records(domains, type).each do |record|
+    records |= [record.to_s]
   end
-end.flatten
+end
 
+# Display results
 records.sort.each do |record|
   puts record
 end
