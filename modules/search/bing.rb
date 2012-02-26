@@ -22,6 +22,6 @@ class Awesomesauce < Exhumer::Module::Search
   end
 
   def to_uri(opts)
-    URI("http://api.bing.net/json.aspx?AppId=#{opts[:app_id]}&Version=2.2&Market=en-US&Query=#{opts[:query]}&Sources=web&Web.Count=50")
+    URI("http://api.bing.net/json.aspx?Adult=Off&AppId=#{opts[:app_id]}&Version=2.2&Market=en-US&Query=#{opts[:query]}&Sources=web&Web.Count=50")
   end
 end
