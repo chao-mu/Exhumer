@@ -44,26 +44,24 @@ def lookup_records(domains, record_type)
   end.flatten
 end
 
-domains = ips.map do |ip|
-  bing_reverse_lookup(app_id, ip).each do |hostname|
+domains = ips.map do |ip| bing_reverse_lookup(app_id, ip).each do |hostname|
     [hostname, PublicSuffix.parse(hostname).domain]
   end
 end.flatten.flatten.uniq
 
-# TODO: PTR lookups
+records = []
 
-%w(A AAAA CNAME MX NS SOA SRV TXT).each do |type|
-  records = lookup_records(domains, type)
+lookup_records(ips, Net::DNS::PTR).each do |record|
+  domains |= [record.ptr]
+  records |= [record.to_s]
+end
 
-  if records.count <= 0
-    next
+records |= %w(A AAAA CNAME MX NS SOA SRV TXT).map do |type|
+  lookup_records(domains, type).map do |record|
+    record.to_s
   end
+end.flatten
 
-  puts '###'
-  puts "# #{type} Records"
-  puts '##'
-  records.each do |record|     
-    puts record
-  end
-  puts "\n"
+records.sort.each do |record|
+  puts record
 end
