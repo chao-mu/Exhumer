@@ -31,6 +31,17 @@ def bing_reverse_lookup(app_id, ip)
   hosts.uniq
 end
 
+def find_subdomain_com_lookup(domain)
+  path = File.join(MODULE_DIR, 'search', 'find_subdomain_com.rb')
+  mod  = Exhumer::Module.load_module(path)
+
+  subdomains = []
+  mod.each(:domain => domain) do |query, loot, descr|
+    subdomains.push domain
+  end
+  subdomains.uniq
+end
+
 def lookup_records(domains, record_type)
   resolver = Net::DNS::Resolver.new  
 
@@ -44,27 +55,38 @@ domains = []
 # Use bing to build a list of domains
 ips.each do |ip|
   bing_reverse_lookup(app_id, ip).each do |hostname|
-    domains |= [hostname, PublicSuffix.parse(hostname).domain]
+    #domains |= [hostname, PublicSuffix.parse(hostname).domain]
+    unless domains.include? hostname
+      puts "#{ip} #{hostname}"
+      domains << hostname
+    end
   end
 end
-
-# Various DNS records
-records = []
-
-# Lookup PTR records
-lookup_records(ips, Net::DNS::PTR).each do |record|
-  domains |= [record.ptr]
-  records |= [record.to_s]
-end
-
-# Lookup common record types
-%w(A AAAA CNAME MX NS SOA SRV TXT).each do |type|
-  lookup_records(domains, type).each do |record|
-    records |= [record.to_s]
-  end
-end
-
-# Display results
-records.sort.each do |record|
-  puts record
-end
+## Various DNS records
+#records = []
+#
+## Lookup PTR records
+#lookup_records(ips, Net::DNS::PTR).each do |record|
+#  domains |= [record.ptr]
+#  records |= [record.to_s]
+#end
+#
+#domains.map do |domain|
+#  PublicSuffix.parse(domain).domain
+#end.uniq.each do |domain|
+#  find_subdomain_com_lookup(domain).each do |subdomain|
+#    domains |= [subdomain]
+#  end
+#end
+#
+## Lookup common record types
+#%w(A AAAA CNAME MX NS SOA SRV TXT).each do |type|
+#  lookup_records(domains, type).each do |record|
+#    records |= [record.to_s]
+#  end
+#end
+#
+## Display results
+#records.sort.each do |record|
+#  puts record
+#end
