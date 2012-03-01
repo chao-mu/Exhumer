@@ -42,7 +42,6 @@ class Exhumer::Module::Search < Exhumer::Module
 
     until search_todo.empty? or searches >= max_queries
       search_uri, search_body = search_todo.pop
-      puts search_uri.to_s
 
       if search_body.nil?
         search_body = throttled_retrieve(search_uri)
