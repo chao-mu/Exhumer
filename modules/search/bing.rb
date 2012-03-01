@@ -7,6 +7,7 @@ class Awesomesauce < Exhumer::Module::Search
   include Exhumer::Module::Search::NetHTTP
 
   DEFAULT_RESULT_COUNT = 10
+  DEFAULT_APP_ID       = 'EEB3EB8871DCCD5639E692A5A55A023957D04EC1'
 
   def parse_bing_response(page)
     JSON(page)['SearchResponse']['Web']
@@ -46,7 +47,7 @@ class Awesomesauce < Exhumer::Module::Search
 
     uri.query_values = {
       'Adult'     => 'Off',
-      'AppId'     => opts[:app_id],
+      'AppId'     => opts.fetch(:app_id, DEFAULT_APP_ID),
       'Version'   => '2.2',
       'Sources'   => 'web',
       'Web.Count' => 50,
