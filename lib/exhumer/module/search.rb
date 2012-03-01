@@ -1,5 +1,7 @@
 require 'exhumer/module'
 
+require 'addressable/uri'
+
 class Exhumer::Module::Search < Exhumer::Module
 
   def throttle(&f)
@@ -26,11 +28,10 @@ class Exhumer::Module::Search < Exhumer::Module
   def throttled_retrieve(uri)
     throttle do
       retrieve(uri)
-    end
-  end
+    end end
 
   def advance_search(last_uri, last_page)
-    raise 'advance_search must be overridden'
+    []
   end
 
   def each(seed, max_queries=1.0/0, &f)
@@ -41,21 +42,50 @@ class Exhumer::Module::Search < Exhumer::Module
 
     until search_todo.empty? or searches >= max_queries
       search_uri, search_body = search_todo.pop
+      puts search_uri.to_s
+
+      if search_body.nil?
+        search_body = throttled_retrieve(search_uri)
+      end
+
+      if search_body.nil?
+        next
+      end
 
       results_at(search_body).each_pair do |uri, description|
         f.call(search_uri, uri, description)
       end
 
-      [*advance_search(search_uri, search_body)].each do |advancement|
-        if advancement.kind_of?(URI)
-          search_todo.push [advancement, nil]
-        elsif advancment.kind_of?(Array)
-          search_todo.push advancement
-        elsif !advancement.nil?
-          search_todo.push [nil, advancement]
-        end
-      end
+      search_todo |= normalize_advancements(
+          advance_search(search_uri, search_body))
+
       searches = searches + 1
+    end
+  end
+
+private
+  # Such a pain in the ass
+  def normalize_advancements(xs)
+    if xs.kind_of?(Array)
+      if xs.count == 1 and xs.first.kind_of?(Array)
+        xs = xs.first
+      end
+    else
+      xs = [xs] 
+    end
+    
+    # create an array of advancements ([uri, page])
+    xs.map do |x|
+      if x.kind_of?(URI) or x.kind_of?(Addressable::URI)
+        # It's just the next URI
+        [x, nil]
+      elsif x.kind_of?(Array) and x.count == 2
+        # It's already a uri&page pair
+        x
+      elsif !x.nil?
+        # It's just the page
+        [nil, x]
+      end
     end
   end
 end
