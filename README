@@ -1,13 +1,1 @@
-Exhumer is a framework for finding and extracting data from remote sources, someday supporting everything from SSH servers to Search Engines
-
-PRE ALPHA EXPERIMENTAL VERSION! Don't expect anything at all to work.
-
-Actual working examples:
-
-ruby bin/hunt.rb modules/plunder/crypt.rb  modules/search/google.rb > search_results
-
-Vapour examples of commands:
-
-bin/hunt.rb presets/crypt --config foo.baz=bar,foo.qux=quux,refresh=true
-# Search google and bing for crypt passwords, nmap command style. I like this.
-exhumer -sG -sB --scripts crypt
+Exhumer is a framework for finding and extracting data from remote sources. It was never completed and mostly written to explore design possibilities in frameworks.
