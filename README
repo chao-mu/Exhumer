@@ -1,1 +1,5 @@
-Exhumer is a framework for finding and extracting data from remote sources. It was never completed and mostly written to explore design possibilities in frameworks.
+Exhumer is a framework for finding and extracting data from remote sources. 
+
+It was was written to explore design possibilities in frameworks where users contributed functionality.
+
+The APIs it uses have likely changed since it's inception/abandonment.
